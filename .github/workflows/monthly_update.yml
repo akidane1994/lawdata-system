@@ -1,0 +1,42 @@
+name: Monthly Laws Update
+
+on:
+  schedule:
+    # 毎月1日のJST 09:00 (UTC 00:00) に実行
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # 手動実行ボタンも有効化
+
+jobs:
+  update-laws:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run update script
+        run: |
+          python src/main.py
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet || echo "has_changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push if changes exist
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add laws/ changes/
+          git commit -m "Update laws and generate diffs [$(date +'%Y-%m-%d')]"
+          git push
