@@ -4,7 +4,7 @@ import time
 
 def fetch_law_data(law_id):
     """
-    指定されたLawIDの法理データをe-gov APIからJSON形式で取得する。
+    指定されたLawIDの法令データをe-gov APIからJSON形式で取得する。
     """
     url = f"https://laws.e-gov.go.jp/api/2/law_data/{law_id}"
     headers = {
